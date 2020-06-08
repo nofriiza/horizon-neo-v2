@@ -49,7 +49,6 @@
 
     beforeEach(inject(function ($injector, _$rootScope_, _$q_, _$timeout_) {
       $scope = _$rootScope_.$new();
-      $scope.stepModels = {imageForm: {}, updateMetadataForm: {}};
       $q = _$q_;
       $timeout = _$timeout_;
 
@@ -94,10 +93,23 @@
       expect(ctrl.ramdiskImages).toEqual([{disk_format: 'ari'}]);
     });
 
+    it('should emit events on image change', function() {
+      spyOn($scope, '$emit').and.callThrough();
+
+      var ctrl = createController();
+      ctrl.image = 1;
+      $scope.$apply();
+
+      ctrl.image = 2;
+      $scope.$apply();
+
+      expect($scope.$emit).toHaveBeenCalledWith('horizon.app.core.images.IMAGE_CHANGED', 2);
+    });
+
     it('should have options for visibility, protected and copying', function() {
       var ctrl = createController();
 
-      expect(ctrl.imageVisibilityOptions.length).toEqual(4);
+      expect(ctrl.imageVisibilityOptions.length).toEqual(2);
       expect(ctrl.imageProtectedOptions.length).toEqual(2);
       expect(ctrl.imageCopyOptions.length).toEqual(2);
     });
@@ -124,7 +136,7 @@
       expect(ctrl.imageFormats).toBeDefined();
       expect(ctrl.validationRules).toBeDefined();
       expect(ctrl.diskFormats).toEqual([]);
-      expect(ctrl.image.visibility).toEqual('shared');
+      expect(ctrl.image.visibility).toEqual('public');
       expect(ctrl.image.min_disk).toEqual(0);
       expect(ctrl.image.min_ram).toEqual(0);
     });
@@ -213,16 +225,6 @@
           });
           $timeout.flush();
           expect(ctrl.imageSourceOptions).toEqual([fileSourceOption, urlSourceOption]);
-        });
-
-        it('test image visibility is private if set as default', function() {
-          var ctrl = createController();
-          settingsCall.resolve({
-            OPENSTACK_IMAGE_FORMATS: [],
-            CREATE_IMAGE_DEFAULTS: { image_visibility: 'private' }
-          });
-          $timeout.flush();
-          expect(ctrl.image.visibility).toEqual('private');
         });
       });
     });

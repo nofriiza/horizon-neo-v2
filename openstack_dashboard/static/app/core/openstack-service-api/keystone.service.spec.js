@@ -18,7 +18,7 @@
   'use strict';
 
   describe('Keystone API', function() {
-    var testCall, service, settings;
+    var testCall, service;
     var apiService = {};
     var toastService = {};
 
@@ -31,10 +31,9 @@
 
     beforeEach(module('horizon.app.core.openstack-service-api'));
 
-    beforeEach(inject(function($injector) {
-      service = $injector.get('horizon.app.core.openstack-service-api.keystone');
-      settings = $injector.get('horizon.app.core.openstack-service-api.settings');
-    }));
+    beforeEach(inject(['horizon.app.core.openstack-service-api.keystone', function(keystoneAPI) {
+      service = keystoneAPI;
+    }]));
 
     it('defines the service', function() {
       expect(service).toBeDefined();
@@ -209,12 +208,6 @@
         "testInput": [
           42
         ]
-      },
-      {
-        "func": "getDefaultDomain",
-        "method": "get",
-        "path": "/api/keystone/default_domain/",
-        "error": "Unable to retrieve the default domain."
       },
       {
         "func": "getDomains",
@@ -397,66 +390,6 @@
         "method": "get",
         "path": "/api/keystone/groups/",
         "error": "Unable to fetch the groups."
-      },
-      {
-        "func": "createGroup",
-        "method": "post",
-        "path": "/api/keystone/groups/",
-        "data": "new group",
-        "error": "Unable to create the group.",
-        "testInput": [
-          "new group"
-        ]
-      },
-      {
-        "func": "getGroup",
-        "method": "get",
-        "path": "/api/keystone/groups/14",
-        "error": "Unable to retrieve the group.",
-        "testInput": [
-          14
-        ]
-      },
-      {
-        "func": "editGroup",
-        "method": "patch",
-        "path": "/api/keystone/groups/42",
-        "data": {
-          "id": 42
-        },
-        "error": "Unable to edit the group.",
-        "testInput": [
-          {
-            "id": 42
-          }
-        ]
-      },
-      {
-        "func": "deleteGroup",
-        "method": "delete",
-        "path": "/api/keystone/groups/14",
-        "error": "Unable to delete the group.",
-        "testInput": [
-          14
-        ]
-      },
-      {
-        "func": "deleteGroups",
-        "method": "delete",
-        "path": "/api/keystone/groups/",
-        "data": [
-          1,
-          2,
-          3
-        ],
-        "error": "Unable to delete the groups.",
-        "testInput": [
-          [
-            1,
-            2,
-            3
-          ]
-        ]
       }
     ];
 
@@ -509,31 +442,6 @@
       });
 
     });
-
-    describe('canEditIdentity', function () {
-      var deferred, $timeout;
-
-      beforeEach(inject(function (_$q_, _$timeout_) {
-        deferred = _$q_.defer();
-        $timeout = _$timeout_;
-      }));
-
-      it('should resolve true if can_edit_group is set True', function() {
-        deferred.resolve({can_edit_group: true});
-        spyOn(settings, 'getSettings').and.returnValue(deferred.promise);
-        var canEdit = service.canEditIdentity('group');
-        $timeout.flush();
-        expect(canEdit).toBeTruthy();
-      });
-
-      it('should resolve false if can_edit_group is set False', function() {
-        deferred.resolve({can_edit_group: false});
-        spyOn(settings, 'getSettings').and.returnValue(deferred.promise);
-        var canEdit = service.canEditIdentity('group');
-        $timeout.flush();
-        // reject
-        expect(canEdit.$$state.status).toEqual(2);
-      });
-    });
   });
+
 })();

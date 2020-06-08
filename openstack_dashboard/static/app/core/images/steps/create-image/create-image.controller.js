@@ -54,8 +54,9 @@
     ctrl.diskFormats = [];
     ctrl.prepareUpload = prepareUpload;
     ctrl.apiVersion = 0;
+    ctrl.allowPublicizeImage = true;
 
-    $scope.stepModels.imageForm = ctrl.image = {
+    ctrl.image = {
       source_type: '',
       image_url: '',
       data: {},
@@ -65,7 +66,7 @@
       min_ram: 0,
       container_format: '',
       disk_format: '',
-      visibility: 'shared'
+      visibility: 'public'
     };
 
     ctrl.uploadProgress = -1;
@@ -83,8 +84,8 @@
     ctrl.imageSourceOptions = [];
 
     ctrl.imageVisibilityOptions = [
-      { label: gettext('Private'), value: 'private' },
-      { label: gettext('Shared'), value: 'shared'}
+      { label: gettext('Public'), value: 'public'},
+      { label: gettext('Private'), value: 'private' }
     ];
 
     ctrl.kernelImages = [];
@@ -95,9 +96,11 @@
 
     init();
 
+    var imageChangedWatcher = $scope.$watchCollection('ctrl.image', watchImageCollection);
     var watchUploadProgress = $scope.$on(events.IMAGE_UPLOAD_PROGRESS, watchImageUpload);
 
     $scope.$on('$destroy', function() {
+      imageChangedWatcher();
       watchUploadProgress();
     });
 
@@ -145,16 +148,20 @@
       return (type === 'file-legacy' || type === 'file-direct');
     }
 
+    // emits new data to parent listeners
+    function watchImageCollection(newValue, oldValue) {
+      if (newValue !== oldValue) {
+        $scope.$emit(events.IMAGE_CHANGED, newValue);
+      }
+    }
+
     function init() {
       glance.getImages({paginate: false}).success(onGetImages);
-      policyAPI.ifAllowed({rules: [['image', 'communitize_image']]}).then(
-        function () {
-          ctrl.imageVisibilityOptions.push({ label: gettext('Community'), value: 'community' });
-        }
-      );
       policyAPI.ifAllowed({rules: [['image', 'publicize_image']]}).then(
+        angular.noop,
         function () {
-          ctrl.imageVisibilityOptions.push({ label: gettext('Public'), value: 'public' });
+          ctrl.image.visibility = "private";
+          ctrl.allowPublicizeImage = false;
         }
       );
     }

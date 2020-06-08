@@ -25,8 +25,7 @@
     '$scope',
     'horizon.app.core.images.imageFormats',
     'horizon.app.core.images.validationRules',
-    'horizon.app.core.openstack-service-api.settings',
-    'horizon.app.core.openstack-service-api.policy'
+    'horizon.app.core.openstack-service-api.settings'
   ];
 
   /**
@@ -39,8 +38,7 @@
     $scope,
     imageFormats,
     validationRules,
-    settings,
-    policy
+    settings
   ) {
     var ctrl = this;
 
@@ -54,11 +52,12 @@
     ];
 
     ctrl.imageVisibilityOptions = [
-      { label: gettext('Private'), value: 'private' },
-      { label: gettext('Shared'), value: 'shared' }
+      { label: gettext('Public'), value: 'public'},
+      { label: gettext('Private'), value: 'private' }
     ];
 
     ctrl.setFormats = setFormats;
+    ctrl.allowPublicizeImage = { rules: [['image', 'image:publicize_image']]};
 
     $scope.imagePromise.then(init);
 
@@ -77,30 +76,17 @@
     }
 
     function init(response) {
-      $scope.stepModels.imageForm = ctrl.image = response.data;
+      ctrl.image = response.data;
       ctrl.image.kernel = ctrl.image.properties.kernel_id;
       ctrl.image.ramdisk = ctrl.image.properties.ramdisk_id;
       ctrl.image.architecture = ctrl.image.properties.architecture;
+      ctrl.image.visibility = ctrl.image.is_public ? 'public' : 'private';
       ctrl.image_format = ctrl.image.disk_format;
       if (ctrl.image.container_format === 'docker') {
         ctrl.image_format = 'docker';
         ctrl.image.disk_format = 'raw';
       }
       setFormats();
-      getVisibilities();
-    }
-
-    function getVisibilities() {
-      policy.ifAllowed({rules: [['image', 'communitize_image']]}).then(
-        function() {
-          ctrl.imageVisibilityOptions.push({ label: gettext('Community'), value: 'community' });
-        }
-      );
-      policy.ifAllowed({rules: [['image', 'publicize_image']]}).then(
-        function() {
-          ctrl.imageVisibilityOptions.push({ label: gettext('Public'), value: 'public' });
-        }
-      );
     }
 
     function setFormats() {
@@ -112,9 +98,6 @@
       if (ctrl.image_format === 'docker') {
         ctrl.image.container_format = 'docker';
         ctrl.image.disk_format = 'raw';
-      }
-      if (ctrl.image_format === 'vhd') {
-        ctrl.image.container_format = 'ovf';
       }
     }
 

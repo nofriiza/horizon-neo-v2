@@ -40,6 +40,7 @@
       expect(names).toContain('name');
 
       function getName(x) {
+        // underscore.js and .pluck() would be great here.
         return x.name;
       }
     });

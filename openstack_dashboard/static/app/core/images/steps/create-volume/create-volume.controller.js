@@ -135,11 +135,11 @@
       updateStorageGraph
     );
 
-    var volumeTypeWatcher = $scope.$watch(
+    var volumeWatcher = $scope.$watch(
       function() {
-        return ctrl.volumeType;
+        return ctrl.volume;
       },
-      updateVolumeType,
+      volumeChangeEvent,
       true
     );
 
@@ -150,7 +150,7 @@
     function init() {
       cinder.getVolumeTypes().success(onGetVolumeTypes);
       cinder.getAbsoluteLimits().success(onGetAbsoluteLimits);
-      cinder.getAvailabilityZones().success(onGetAvailabilityZones);
+      nova.getAvailabilityZones().success(onGetAvailabilityZones);
     }
 
     function onGetVolumeTypes(response) {
@@ -222,13 +222,13 @@
       return image.name + ' (' + $filter('bytes')(image.size) + ')';
     }
 
-    function updateVolumeType() {
+    function volumeChangeEvent() {
       ctrl.volume.volume_type = ctrl.volumeType.name || '';
     }
 
     function deregisterWatchers() {
       capacityWatcher();
-      volumeTypeWatcher();
+      volumeWatcher();
     }
   }
 })();

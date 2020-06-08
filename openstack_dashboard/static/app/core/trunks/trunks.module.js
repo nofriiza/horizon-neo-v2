@@ -34,7 +34,6 @@
       'horizon.app.core'
     ])
     .constant('horizon.app.core.trunks.resourceType', 'OS::Neutron::Trunk')
-    .constant('horizon.app.core.trunks.portConstants', portConstants())
     .run(run)
     .config(config);
 
@@ -52,9 +51,8 @@
                trunksService,
                trunkResourceType) {
     registry.getResourceType(trunkResourceType)
-      .setNames('Trunk', 'Trunks', ngettext('Trunk', 'Trunks', 1))
+      .setNames(gettext('Trunk'), gettext('Trunks'))
       .setSummaryTemplateUrl(basePath + 'summary.html')
-      .setDefaultIndexUrl('/project/trunks/')
       .setProperties(trunkProperties())
       .setListFunction(trunksService.getTrunksPromise)
       .tableColumns
@@ -62,13 +60,11 @@
         id: 'name_or_id',
         priority: 1,
         sortDefault: true,
-        classes: "word-wrap",
         urlFunction: trunksService.getDetailsPath
       })
       .append({
         id: 'port_id',
-        priority: 1,
-        urlFunction: trunksService.getPortDetailsPath
+        priority: 1
       })
       .append({
         id: 'subport_count',
@@ -132,32 +128,12 @@
       description: gettext('Description'),
       id: gettext('ID'),
       name: gettext('Name'),
-      name_or_id: gettext('Name/ID'),
+      name_or_id: gettext('Name'),
       port_id: gettext('Parent Port'),
       project_id: gettext('Project ID'),
       status: gettext('Status'),
       subport_count: gettext('Subport Count'),
       updated_at: gettext('Updated at')
-    };
-  }
-
-  function portConstants() {
-    return {
-      statuses: {
-        'ACTIVE': gettext('Active'),
-        'DOWN': gettext('Down')
-      },
-      adminStates: {
-        'UP': gettext('Up'),
-        'DOWN': gettext('Down')
-      },
-      vnicTypes: {
-        'normal': gettext('Normal'),
-        'direct': gettext('Direct'),
-        'direct-physical': gettext('Direct Physical'),
-        'macvtap': gettext('MacVTap'),
-        'baremetal': gettext('Bare Metal')
-      }
     };
   }
 
@@ -184,14 +160,6 @@
     });
 
     $routeProvider.when('/project/trunks/:id', {
-      redirectTo: goToAngularDetails
-    });
-
-    $routeProvider.when('/admin/trunks', {
-      templateUrl: path + 'panel.html'
-    });
-
-    $routeProvider.when('/admin/trunk/:id/detail', {
       redirectTo: goToAngularDetails
     });
 

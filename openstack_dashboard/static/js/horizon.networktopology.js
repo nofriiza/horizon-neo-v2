@@ -127,50 +127,35 @@ horizon.network_topology = {
       })
       .on('click', 'a.vnc_window', function(e) {
         e.preventDefault();
-        var vncWindow = window.open(angular.element(this).attr('href'), vncWindow, 'width=760,height=560');
+        var vncWindow = window.open(angular.element(this).attr('href'), vncWindow,
+                                     'width=760,height=560');
         self.delete_balloon();
       });
 
-    angular.element('#toggle_labels').change(function() {
-      horizon.cookies.put('show_labels', this.checked);
-      self.refresh_labels();
+    angular.element('#toggle_labels').click(function() {
+      if (angular.element('.nodeLabel').css('display') == 'none') {
+        angular.element('.nodeLabel').show();
+        horizon.cookies.put('show_labels', true);
+      } else {
+        angular.element('.nodeLabel').hide();
+        horizon.cookies.put('show_labels', false);
+      }
     });
 
-    angular.element('#toggle_networks').change(function() {
-      horizon.cookies.put('are_networks_collapsed', this.checked);
-      self.refresh_networks();
-      self.refresh_labels();
-    });
-
-    angular.element('#center_topology').click(function() {
-     this.blur(); // remove btn focus after click
-     self.delete_balloon();
-      // move visualization to the center and reset scale
-      self.vis.transition()
-        .duration(1500)
-        .attr('transform', 'translate(0,0)scale(1)');
-
-      // reset internal zoom translate and scale parameters so on next
-      // move the objects do not jump to the old position
-      self.zoom.translate([0,0]);
-      self.zoom.scale(1);
-      self.translate = null;
-    });
-    angular.element(window).on('message', function(e) {
-        var message = angular.element.parseJSON(e.originalEvent.data);
-        if (self.previous_message !== message.message) {
-          horizon.alert(message.type, message.message);
-          self.previous_message = message.message;
-          self.delete_post_message(message.iframe_id);
-          if (message.type == 'success' && self.deleting_device) {
-            self.remove_node_on_delete();
+    angular.element('#toggle_networks').click(function() {
+      for (var n in self.nodes) {
+        if ({}.hasOwnProperty.call(self.nodes, n)) {
+          if (self.nodes[n].data instanceof Network || self.nodes[n].data instanceof ExternalNetwork) {
+            self.collapse_network(self.nodes[n]);
           }
-          self.retrieve_network_info();
-          setTimeout(function() {
-            self.previous_message = null;
-          },10000);
+          if (horizon.cookies.get('show_labels')) {
+            angular.element('.nodeLabel').show();
+          }
         }
-      });
+      }
+      var current = horizon.cookies.get('are_networks_collapsed');
+      horizon.cookies.put('are_networks_collapsed', !current);
+    });
 
     // set up loader first thing
     self.$loading_template.show();
@@ -189,64 +174,15 @@ horizon.network_topology = {
 
     angular.element('#networktopology').on('change', function() {
       self.retrieve_network_info(true);
-      if(angular.equals(self.data.networks,{}) && angular.equals(self.data.routers,{}) &&
-         angular.equals(self.data.servers,{})){
-        $('.loader-inline').remove();
-        angular.element('#topologyCanvasContainer').find('svg').remove();
-        $(self.svg_container).addClass('noinfo');
-        return;
-      }
     });
 
     // register for message notifications
-    horizon.networktopologymessager.addMessageHandler(
-        this.handleMessage, this
-    );
-  },
-
-  // Shows/Hides graph labels
-  refresh_labels: function() {
-    var show_labels = horizon.cookies.get('show_labels') == 'true';
-    angular.element('.nodeLabel').toggle(show_labels);
-  },
-
-  // Collapses/Uncollapses networks in the graph
-  refresh_networks: function() {
-    var self = this;
-    var are_collapsed = horizon.cookies.get('are_networks_collapsed') == 'true';
-    for (var n in self.nodes) {
-      if ({}.hasOwnProperty.call(self.nodes, n)) {
-        if (self.nodes[n].data instanceof Network || self.nodes[n].data instanceof ExternalNetwork) {
-            self.collapse_network(self.nodes[n], are_collapsed);
-        }
-      }
-    }
-  },
-
-  // Load config from cookie
-  load_config: function() {
-    var self = this;
-
-    var labels = horizon.cookies.get('show_labels') == 'true';
-    var networks = horizon.cookies.get('are_networks_collapsed') == 'true';
-
-    if(networks) {
-      angular.element('#toggle_networks_label').addClass('active');
-      angular.element('#toggle_networks').prop('checked', networks);
-      self.refresh_networks();
-    }
-
-    if(labels) {
-      angular.element('#toggle_labels_label').addClass('active');
-      angular.element('#toggle_labels').prop('checked', labels);
-      self.refresh_labels();
-    }
+    horizon.networktopologymessager.addMessageHandler(this.handleMessage, this);
   },
 
   handleMessage:function(message) {
     var self = this;
     var deleteData = horizon.networktopologymessager.delete_data;
-    horizon.modals.spinner.modal('hide');
     if (message.type == 'success') {
       self.remove_node_on_delete(deleteData);
     }
@@ -264,6 +200,24 @@ horizon.network_topology = {
         self.force.tick();
         i++;
       }
+    }
+  },
+
+  // Load config from cookie
+  load_config: function() {
+    var labels = horizon.cookies.get('show_labels');
+    var networks = horizon.cookies.get('are_networks_collapsed');
+    if (labels) {
+      angular.element('.nodeLabel').show();
+      angular.element('#toggle_labels').addClass('active');
+    }
+    if (networks) {
+      for (var n in this.nodes) {
+        if ({}.hasOwnProperty.call(this.nodes, n)) {
+          this.collapse_network(this.nodes[n], true);
+        }
+      }
+      angular.element('#toggle_networks').addClass('active');
     }
   },
 
@@ -743,7 +697,7 @@ horizon.network_topology = {
         var device = self.find_by_id(port.device_id);
         var _network = self.find_by_id(port.network_id);
         if (angular.isDefined(device) && angular.isDefined(_network)) {
-          if (port.device_owner && port.device_owner.startsWith('compute:')) {
+          if (port.device_owner == 'compute:nova' || port.device_owner == 'compute:None') {
             _network.data.instances++;
             device.data.networks.push(_network.data);
             if (port.fixed_ips) {
@@ -773,8 +727,7 @@ horizon.network_topology = {
           }
           self.new_link(self.find_by_id(port.device_id), self.find_by_id(port.network_id));
           change = true;
-        } else if (angular.isDefined(_network) &&
-                   port.device_owner && port.device_owner.startsWith('compute:')) {
+        } else if (angular.isDefined(_network) && port.device_owner == 'compute:nova') {
           // Need to add a previously hidden node to the graph because it is
           // connected to more than 1 network
           if (_network.data.collapsed) {
@@ -1004,11 +957,7 @@ horizon.network_topology = {
         object.ip_address = ipAddress;
         object.device_owner = deviceOwner;
         object.network_id = networkId;
-        object.is_interface = (
-          deviceOwner === 'router_interface' ||
-          deviceOwner === 'router_gateway' ||
-          deviceOwner === 'ha_router_replicated_interface'
-        );
+        object.is_interface = (deviceOwner === 'router_interface' || deviceOwner === 'router_gateway');
         ports.push(object);
       });
     } else if (d.hasOwnProperty('subnets')) {
@@ -1067,9 +1016,6 @@ horizon.network_topology = {
       htmlData.subnet = subnets;
       if (d instanceof Network) {
         htmlData.delete_label = gettext('Delete Network');
-        if (d.allow_delete_subnet){
-          htmlData.allow_delete_subnet = d.allow_delete_subnet;
-        }
       }
       htmlData.add_subnet_url = 'network/' + d.id + '/subnet/create';
       htmlData.add_subnet_label = gettext('Create Subnet');
@@ -1104,18 +1050,20 @@ horizon.network_topology = {
     _balloon.find('.delete-device').click(function() {
       var _this = angular.element(this);
       var delete_modal = horizon.datatables.confirm(_this);
-      delete_modal.find('.btn.btn-danger').click(function () {
+      delete_modal.find('.btn-primary').click(function () {
         _this.prop('disabled', true);
         d3.select('#id_' + _this.data('device-id')).classed('loading',true);
         self.delete_device(_this.data('type'),_this.data('device-id'));
+        horizon.modals.spinner.modal('hide');
       });
     });
     _balloon.find('.delete-port').click(function() {
       var _this = angular.element(this);
       var delete_modal = horizon.datatables.confirm(_this);
-      delete_modal.find('.btn.btn-danger').click(function () {
+      delete_modal.find('.btn-primary').click(function () {
         _this.prop('disabled', true);
         self.delete_port(_this.data('router-id'),_this.data('port-id'),_this.data('network-id'));
+        horizon.modals.spinner.modal('hide');
       });
     });
     self.balloonID = balloonID;

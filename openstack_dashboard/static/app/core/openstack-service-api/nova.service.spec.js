@@ -41,15 +41,6 @@
 
     var tests = [
       {
-        "func": "isFeatureSupported",
-        "method": "get",
-        "path": "/api/nova/features/fake",
-        "error": "Unable to check the Nova service feature.",
-        "testInput": [
-          "fake"
-        ]
-      },
-      {
         "func": "getServices",
         "method": "get",
         "path": "/api/nova/services/",
@@ -141,26 +132,6 @@
         "testInput": [
           {}
         ]
-      },
-      {
-        "func": "deleteKeypair",
-        "method": "delete",
-        "path": "/api/nova/keypairs/19",
-        "error": "Unable to delete the keypair with name: 19",
-        "testInput": [19]
-      },
-      {
-        "func": "deleteKeypair",
-        "method": "delete",
-        "path": "/api/nova/keypairs/19",
-        "testInput": [19, true]
-      },
-      {
-        "func": "getKeypair",
-        "method": "get",
-        "path": "/api/nova/keypairs/19",
-        "error": "Unable to retrieve the keypair.",
-        "testInput": [19]
       },
       {
         "func": "deleteServer",
@@ -295,38 +266,6 @@
         "method": "get",
         "path": "/api/nova/servers/",
         "error": "Unable to retrieve instances."
-      },
-      {
-        "func": "getServerGroup",
-        "method": "get",
-        "path": "/api/nova/servergroups/17",
-        "error": "Unable to retrieve the server group.",
-        "testInput": [
-          '17'
-        ]
-      },
-      {
-        "func": 'getServerGroups',
-        "method": 'get',
-        "path": '/api/nova/servergroups/',
-        "error": 'Unable to retrieve server groups.'
-      },
-      {
-        "func": "createServerGroup",
-        "method": "post",
-        "path": "/api/nova/servergroups/",
-        "data": "new server group",
-        "error": "Unable to create the server group.",
-        "testInput": [
-          "new server group"
-        ]
-      },
-      {
-        "func": "deleteServerGroup",
-        "method": "delete",
-        "path": "/api/nova/servergroups/1/",
-        "error": "Unable to delete the server group with id 1",
-        "testInput": [1]
       },
       {
         "func": "getExtensions",

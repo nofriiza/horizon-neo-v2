@@ -4,14 +4,8 @@
   }
 
   .transfer-heading{
-    @extend h4;
-    font-size: $font-size-h4;
-
-      .help-text{
-        @extend h5;
-        font-size: $font-size-h5;
-
-      }
+    @extend h5;
+    font-size: $font-size-h5;
   }
 
   .transfer-section {

@@ -71,9 +71,8 @@
                $memoize,
                keystone) {
     registry.getResourceType(imageResourceType)
-      .setNames('Image', 'Images', ngettext('Image', 'Images', 1))
+      .setNames(gettext('Image'), gettext('Images'))
       .setSummaryTemplateUrl(basePath + 'details/drawer.html')
-      .setDefaultIndexUrl('/project/images/')
       .setItemInTransitionFunction(imagesService.isInTransition)
       .setProperties(imageProperties(imagesService, statuses))
       .setListFunction(imagesService.getImagesPromise)
@@ -89,7 +88,6 @@
         id: 'name',
         priority: 1,
         sortDefault: true,
-        classes: "word-wrap",
         urlFunction: imagesService.getDetailsPath
       })
       .append({
@@ -256,7 +254,7 @@
       container_format: { label: gettext('Container Format'), filters: ['uppercase'] },
       disk_format: { label: gettext('Disk Format'), filters: ['noValue', 'uppercase'] },
       is_public: { label: gettext('Is Public'), filters: ['yesno'] },
-      type: { label: gettext('Type')},
+      type: { label: gettext('Type'), filters: [imagesService.imageType] },
       'protected': { label: gettext('Protected'), filters: ['yesno'] },
       size: { label: gettext('Size'), filters: ['bytes'] },
       status: { label: gettext('Status'), values: statuses }
@@ -271,6 +269,8 @@
    */
   function events() {
     return {
+      IMAGE_CHANGED: 'horizon.app.core.images.IMAGE_CHANGED',
+      IMAGE_METADATA_CHANGED: 'horizon.app.core.images.IMAGE_METADATA_CHANGED',
       IMAGE_UPLOAD_PROGRESS: 'horizon.app.core.images.IMAGE_UPLOAD_PROGRESS'
     };
   }

@@ -22,16 +22,6 @@
       open: function () {}
     };
 
-    var policyAPI = {
-      ifAllowed: function() {
-        return {
-          success: function(callback) {
-            callback({allowed: true});
-          }
-        };
-      }
-    };
-
     var service, $scope;
 
     ///////////////////////
@@ -41,7 +31,6 @@
       $provide.value(
         'horizon.dashboard.project.workflow.launch-instance.modal.service', launchInstanceModalMock
       );
-      $provide.value('horizon.app.core.openstack-service-api.policy', policyAPI);
     }));
 
     beforeEach(inject(function($injector, _$rootScope_) {

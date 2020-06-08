@@ -37,8 +37,6 @@
     var service = {
       createNetwork: createNetwork,
       createSubnet: createSubnet,
-      createTrunk: createTrunk,
-      deletePolicy: deletePolicy,
       deleteTrunk: deleteTrunk,
       getAgents: getAgents,
       getDefaultQuotaSets: getDefaultQuotaSets,
@@ -50,8 +48,7 @@
       getSubnets: getSubnets,
       getTrunk: getTrunk,
       getTrunks: getTrunks,
-      updateProjectQuota: updateProjectQuota,
-      updateTrunk: updateTrunk
+      updateProjectQuota: updateProjectQuota
     };
 
     return service;
@@ -359,16 +356,11 @@
      * Specifies the id of the policy to request.
      * @returns {Object} The result of the API call
      */
-    function getQosPolicy(id, suppressError) {
-      var promise = apiService.get('/api/neutron/qos_policies/' + id + '/')
-        .success(function(policy) {
-          convertDatesHumanReadable(policy);
+    function getQosPolicy(id) {
+      return apiService.get('/api/neutron/qos_policy/' + id + '/')
+        .error(function () {
+          toastService.add('error', gettext('Unable to retrieve the qos policy.'));
         });
-      promise = suppressError ? promise : promise.error(function () {
-        var msg = gettext('Unable to retrieve the policy with ID %(id)s');
-        toastService.add('error', interpolate(msg, {id: id}, true));
-      });
-      return promise;
     }
 
     /**
@@ -378,34 +370,13 @@
      * The listing result is an object with property "items". Each item is
      * a QoS policy.
      */
-    function getQoSPolicies(params) {
-      var config = params ? {'params' : params} : {};
-      return apiService.get('/api/neutron/qos_policies/', config)
-        .success(function(policies) {
-          policies.items.forEach(function(policy) {
-            convertDatesHumanReadable(policy);
-          });
-        })
+    function getQoSPolicies() {
+      return apiService.get('/api/neutron/qos_policies/')
         .error(function () {
           toastService.add('error', gettext('Unable to retrieve the qos policies.'));
         });
     }
 
-    /**
-     * @name deletePolicy
-     * @description
-     * Delete a single neutron qos policy.
-     * @param {string} policyId
-     * Specifies the id of the policy to be deleted.
-     */
-    function deletePolicy(policyId, suppressError) {
-      var promise = apiService.delete('/api/neutron/qos_policies/' + policyId + '/');
-      promise = suppressError ? promise : promise.error(function() {
-        var msg = gettext('Unable to delete qos policy %(id)s');
-        toastService.add('error', interpolate(msg, { id: policyId }, true));
-      });
-      return promise;
-    }
     // Trunks
 
     /**
@@ -416,21 +387,17 @@
      * @param {string} id
      * Specifies the id of the trunk to request.
      *
-     * @param {boolean} suppressError (optional)
-     * Suppress the error toast. Default to showing it.
-     *
      * @returns {Object} The result of the API call
      */
-    function getTrunk(id, suppressError) {
-      var promise = apiService.get('/api/neutron/trunks/' + id + '/')
+    function getTrunk(id) {
+      return apiService.get('/api/neutron/trunks/' + id + '/')
         .success(function(trunk) {
           convertDatesHumanReadable(trunk);
+        })
+        .error(function () {
+          var msg = gettext('Unable to retrieve the trunk with id: %(id)s');
+          toastService.add('error', interpolate(msg, { id : id }, true));
         });
-      promise = suppressError ? promise : promise.error(function () {
-        var msg = gettext('Unable to retrieve the trunk with id: %(id)s');
-        toastService.add('error', interpolate(msg, {id: id}, true));
-      });
-      return promise;
     }
 
     /**
@@ -454,48 +421,19 @@
     }
 
     /**
-     * @name createTrunk
-     * @description
-     * Create a neutron trunk.
-     */
-    function createTrunk(newTrunk) {
-      return apiService.post('/api/neutron/trunks/', newTrunk)
-        .error(function () {
-          toastService.add('error', gettext('Unable to create the trunk.'));
-        });
-    }
-
-    /**
      * @name deleteTrunk
      * @description
      * Delete a single neutron trunk.
-     *
      * @param {string} trunkId
      * UUID of a trunk to be deleted.
-     *
-     * @param {boolean} suppressError (optional)
-     * Suppress the error toast. Default to showing it.
      */
-    function deleteTrunk(trunkId, suppressError) {
+    function deleteTrunk(trunkId) {
       var promise = apiService.delete('/api/neutron/trunks/' + trunkId + '/');
-      promise = suppressError ? promise : promise.error(function() {
+
+      return promise.error(function() {
         var msg = gettext('Unable to delete trunk: %(id)s');
         toastService.add('error', interpolate(msg, { id: trunkId }, true));
       });
-      return promise;
     }
-
-    /**
-     * @name updateTrunk
-     * @description
-     * Update an existing trunk.
-     */
-    function updateTrunk(oldTrunk, newTrunk) {
-      return apiService.patch('/api/neutron/trunks/' + oldTrunk.id + '/', [oldTrunk, newTrunk])
-      .error(function() {
-        toastService.add('error', gettext('Unable to update the trunk.'));
-      });
-    }
-
   }
 }());

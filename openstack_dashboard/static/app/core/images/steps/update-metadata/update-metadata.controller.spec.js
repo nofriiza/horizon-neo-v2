@@ -68,7 +68,6 @@
       beforeEach(inject(function($injector, _$rootScope_, _$q_) {
         $controller = $injector.get('$controller');
         $scope = _$rootScope_.$new();
-        $scope.stepModels = {imageForm: {}, updateMetadataForm: {}};
         $q = _$q_;
       }));
 
@@ -119,7 +118,7 @@
         expect(metadataTreeService.Tree).toHaveBeenCalledWith(availableMetadata, []);
       });
 
-      it('should update stepModels.updateMetadataForm when metadata changes', function() {
+      it('should emit imageMetadataChanged event when metadata changes', function() {
         var deferred = $q.defer();
         deferred.resolve({data: {id: '1'}});
         $scope.imagePromise = deferred.promise;
@@ -136,7 +135,10 @@
         mockGetExisting.and.returnValue('2');
         $scope.$apply();
 
-        expect($scope.stepModels.updateMetadataForm).toEqual('2');
+        expect($scope.$emit).toHaveBeenCalledWith(
+          'horizon.app.core.images.IMAGE_METADATA_CHANGED',
+          '2'
+        );
       });
 
       function createController() {

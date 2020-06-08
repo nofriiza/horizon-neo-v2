@@ -59,7 +59,7 @@
     var createVolumePromise, volumeServiceEnabledPromise;
 
     var message = {
-      info: gettext('Creating volume %s')
+      success: gettext('Volume %s was successfully created.')
     };
 
     var service = {
@@ -103,7 +103,7 @@
 
     function showSuccessMessage(response) {
       var volume = response.data;
-      toast.add('info', interpolate(message.info, [volume.name]));
+      toast.add('success', interpolate(message.success, [volume.name]));
 
       // To make the result of this action generically useful, reformat the return
       // from the deleteModal into a standard form

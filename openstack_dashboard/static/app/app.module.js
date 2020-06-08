@@ -112,8 +112,7 @@
     $route
   ) {
 
-    $http.defaults.headers.post['X-CSRFToken'] = $cookies.csrftoken ||
-                $('input[name="csrfmiddlewaretoken"]').val();
+    $http.defaults.headers.post['X-CSRFToken'] = $cookies.csrftoken;
 
     // expose the legacy utils module
     horizon.utils = hzUtils;

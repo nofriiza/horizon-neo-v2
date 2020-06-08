@@ -469,6 +469,7 @@
       } else {
         $scope.model.newInstanceSpec.vol_create = false;
       }
+      $scope.model.newInstanceSpec.vol_create = false;
       $scope.model.newInstanceSpec.vol_delete_on_instance_delete = false;
       changeBootSource(selectedSource, preSelection);
       validateBootSourceType();

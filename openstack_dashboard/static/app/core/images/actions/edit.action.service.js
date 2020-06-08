@@ -56,8 +56,15 @@
     var message = {
       success: gettext('Image %s was successfully updated.')
     };
+    var modifyImagePolicyCheck, scope;
+
+    var model = {
+      image: {},
+      metadata: {}
+    };
 
     var service = {
+      initScope: initScope,
       allowed: allowed,
       perform: perform
     };
@@ -66,9 +73,15 @@
 
     //////////////
 
+    function initScope($scope) {
+      scope = $scope;
+      $scope.$on(events.IMAGE_METADATA_CHANGED, onMetadataChange);
+      modifyImagePolicyCheck = policy.ifAllowed({rules: [['image', 'modify_image']]});
+    }
+
     function allowed(image) {
       return $q.all([
-        policy.ifAllowed({rules: [['image', 'modify_image']]}),
+        modifyImagePolicyCheck,
         isActive(image)
       ]);
     }
@@ -76,60 +89,62 @@
     function perform(image) {
       var deferred = glance.getImage(image.id);
       deferred.then(onLoad);
-      var data = {};
-      data.imagePromise = deferred;
+      scope.imagePromise = deferred;
 
       function onLoad(response) {
         var localImage = response.data;
-        data.image = localImage;
+        model.image = localImage;
       }
 
       return wizardModalService.modal({
-        data: data,
+        scope: scope,
         workflow: editWorkflow,
         submit: submit
       }).result;
     }
 
-    function submit(stepModels) {
-      var image = stepModels.imageForm;
-      var metadata = stepModels.updateMetadataForm;
-      return updateMetadata().then(updateImage, onUpdateImageFail);
+    function onMetadataChange(e, metadata) {
+      model.metadata = metadata;
+      e.stopPropagation();
+    }
 
-      function updateMetadata() {
+    function submit() {
+      return updateMetadata().then(updateImage, onUpdateImageFail);
+    }
+
+    function updateImage() {
+      var finalModel = model.image;
+      return glance.updateImage(finalModel).then(onUpdateImageSuccess, onUpdateImageFail);
+    }
+
+    function onUpdateImageSuccess() {
+      toast.add('success', interpolate(message.success, [model.image.name]));
+      return actionResultService.getActionResult()
+        .updated(imageResourceType, model.image.id)
+        .result;
+    }
+
+    function onUpdateImageFail() {
+      return actionResultService.getActionResult()
+        .failed(imageResourceType, model.image.id)
+        .result;
+    }
+
+    function updateMetadata() {
+
+      return metadataService
+        .getMetadata('image', model.image.id)
+        .then(onMetadataGet);
+
+      function onMetadataGet(response) {
+        var updated = model.metadata;
+        var removed = angular.copy(response.data);
+        angular.forEach(updated, function(value, key) {
+          delete removed[key];
+        });
 
         return metadataService
-          .getMetadata('image', image.id)
-          .then(onMetadataGet);
-
-        function onMetadataGet(response) {
-          var updated = metadata || Object();
-          updated.description = image.properties.description;
-          var removed = angular.copy(response.data);
-          angular.forEach(updated, function(value, key) {
-            delete removed[key];
-          });
-
-          return metadataService
-            .editMetadata('image', image.id, updated, Object.keys(removed));
-        }
-      }
-
-      function updateImage() {
-        return glance.updateImage(image).then(onUpdateImageSuccess, onUpdateImageFail);
-      }
-
-      function onUpdateImageSuccess() {
-        toast.add('success', interpolate(message.success, [image.name]));
-        return actionResultService.getActionResult()
-          .updated(imageResourceType, image.id)
-          .result;
-      }
-
-      function onUpdateImageFail() {
-        return actionResultService.getActionResult()
-          .failed(imageResourceType, image.id)
-          .result;
+          .editMetadata('image', model.image.id, updated, Object.keys(removed));
       }
     }
 

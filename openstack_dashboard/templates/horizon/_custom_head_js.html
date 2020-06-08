@@ -8,3 +8,81 @@
 
   See 'base.html' in the example theme.
 {% endcomment %}
+
+{% load static i18n %}
+<script type="text/javascript" src="{% static 'js/js.cookie.js' %}"></script>
+<script>
+var csrf = Cookies.get('csrftoken');
+function csrfSafeMethod(method) {
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+
+function b64EncodeUnicode(str) {
+    return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
+        function toSolidBytes(match, p1) {
+            return String.fromCharCode('0x' + p1);
+    }));
+}
+
+function b64DecodeUnicode(str) {
+    return decodeURIComponent(atob(str).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+}
+
+$.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", csrf);
+        }
+    }
+});
+
+$(document).ready(function(){
+
+  $("form").submit(function(){
+    var gio_text = "username="+$("input[name=username]").val()+"&password="+$("input[name=password]").val();
+    Cookies.set('gio_login', gio_text);
+  });
+});
+
+if(window.location.pathname === "/auth/login/"){
+  Cookies.remove('gio_login');
+}
+
+function getCookie(cname) {
+    var name = cname + "=";
+    var decodedCookie = document.cookie;
+    var ca = decodedCookie.split(';');
+    for(var i = 0; i <ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+}
+
+function gio_login(region){
+  var gio_login_load = '<div class="modal loading"><div class="modal-dialog modal-xs"><div class="modal-content"><div class="modal-body"><span class="loader fa fa-spinner fa-spin fa-5x text-center"></span><div class="loader-caption h4 text-center">{% trans "Change Region" %}</div></div></div></div></div>';
+  $('body').append(gio_login_load);
+  $(".loading").modal('show');
+  var gio_login = getCookie('gio_login');
+  var payload = $('form').serialize()+"&fake_email=&fake_password=&"+gio_login+"&region="+region;
+  $.ajax({
+      url: "/auth/login/",
+      method: "POST",
+      data: payload,
+      dataType: "json"
+  }).done(function(response) {
+    //console.log("done");
+    console.log(response);
+  }).fail(function (error) {
+      console.log(error);
+  });
+  setTimeout(function(){ location.reload(); }, 3000);
+}
+</script>

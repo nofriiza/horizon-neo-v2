@@ -46,7 +46,6 @@
       getVolumeSnapshots: getVolumeSnapshots,
       getExtensions: getExtensions,
       getQoSSpecs: getQoSSpecs,
-      getAvailabilityZones:getAvailabilityZones,
       createVolume: createVolume,
       getAbsoluteLimits: getAbsoluteLimits,
       getServices: getServices,
@@ -284,11 +283,12 @@
      *  {
      *    "items": [
      *      {
-     *        "alias": "OS-SCH-HNT",
-     *        "description": "Pass arbitrary key/value pairs to the scheduler.",
+     *        "alias": "NMN",
+     *        "description": "Multiple network support.",
      *        "links": [],
-     *        "name": "SchedulerHints",
-     *        "updated": "2013-04-18T00:00:00+00:00"
+     *        "name": "Multinic",
+     *        "namespace": "http://docs.openstack.org/compute/ext/multinic/api/v1.1",
+     *        "updated": "2011-06-09T00:00:00Z"
      *      }
      *    ]
      *  }
@@ -349,9 +349,12 @@
     function getAbsoluteLimits() {
       return apiService.get('/api/cinder/tenantabsolutelimits/')
         .error(function () {
-          toastService.add('error',
-            gettext('Unable to retrieve the Absolute Limits.'));
-        });
+          console.log("Unable to retrieve the Absolute Limits.");
+          // toastService.add('error',
+          //   gettext('Unable to retrieve the Absolute Limits.'));
+          toastService.add('error',gettext('Please keep in mind that when you create an instance from Horizon, billing cycle will be set to reserved/monthly. If you prefer to be charged on hourly basis, please order your instance using portal.neo.id'));
+	//toastService.add('error',gettext('Please keep in mind that when you create an instance from Horizon, billing cycle will be set to reserved/monthly. If you prefer to be charged on hourly basis, please order your instance using portal.neo.id'));
+       });
     }
 
     // Default Quota Sets
@@ -401,25 +404,6 @@
       return apiService.patch(url, quota)
         .error(function() {
           toastService.add('error', gettext('Unable to update project quota data.'));
-        });
-    }
-
-    // Availability Zones
-
-    /**
-     * @name getAvailabilityZones
-     * @description
-     * Get a list of Availability Zones.
-     *
-     * The listing result is an object with property "items". Each item is
-     * an availability zone.
-     * @returns {Object} The result of the API call
-     */
-    function getAvailabilityZones() {
-      return apiService.get('/api/cinder/availzones/')
-        .error(function () {
-          toastService.add('error',
-                        gettext('Unable to retrieve the volume availability zones.'));
         });
     }
   }

@@ -19,7 +19,7 @@
     .factory('horizon.app.core.keypairs.service', keypairsService);
 
   keypairsService.$inject = [
-    'horizon.app.core.detailRoute',
+    '$filter',
     'horizon.app.core.openstack-service-api.nova'
   ];
 
@@ -33,11 +33,9 @@
   * but do not need to be restricted to such use.  Each exposed function
   * is documented below.
   */
-  function keypairsService(detailRoute, nova) {
+  function keypairsService($filter, nova) {
     return {
-      getKeypairsPromise: getKeypairsPromise,
-      getKeypairPromise: getKeypairPromise,
-      urlFunction: urlFunction
+      getKeypairsPromise: getKeypairsPromise
     };
 
      /*
@@ -53,29 +51,16 @@
       return nova.getKeypairs(params).then(modifyResponse);
 
       function modifyResponse(response) {
-        return {data: {items: response.data.items.map(modifyItem)}};
+        return {data: {items: response.data.items.map(modifyItems)}};
 
-        function modifyItem(item) {
+        function modifyItems(item) {
           item = item.keypair;
-          item.id = item.name;
-          item.trackBy = item.name + item.fingerprint;
+          item.trackBy = item.name;
           return item;
         }
       }
     }
 
-    /*
-     * @ngdoc function
-     * @name getKeypairPromise
-     * @description
-     * Given a name, returns a promise for the keypair data.
-     */
-    function getKeypairPromise(name) {
-      return nova.getKeypair(name);
-    }
-
-    function urlFunction(item) {
-      return detailRoute + 'OS::Nova::Keypair/' + item.name;
-    }
   }
+
 })();

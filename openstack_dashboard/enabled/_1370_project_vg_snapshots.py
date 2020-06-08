@@ -8,3 +8,5 @@ PANEL_GROUP = 'volumes'
 # Python panel class of the PANEL to be added.
 ADD_PANEL = ('openstack_dashboard.dashboards.project.vg_snapshots.panel.'
              'GroupSnapshots')
+
+DISABLED = True

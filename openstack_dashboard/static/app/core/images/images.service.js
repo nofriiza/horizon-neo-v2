@@ -66,11 +66,7 @@
      * view.
      */
     function getDetailsPath(item) {
-      var detailsPath = detailRoute + 'OS::Glance::Image/' + item.id;
-      if ($location.url() === '/admin/images') {
-        detailsPath = detailsPath + "?nav=/admin/images/";
-      }
-      return detailsPath;
+      return detailRoute + 'OS::Glance::Image/' + item.id;
     }
 
     /*
@@ -85,8 +81,7 @@
       if (null !== item &&
         angular.isDefined(item) &&
         angular.isDefined(item.properties) &&
-        (item.properties.image_type === 'snapshot' ||
-          angular.isDefined(item.properties.block_device_mapping))) {
+        item.properties.image_type === 'snapshot') {
         return gettext('Snapshot');
       } else {
         return gettext('Image');
@@ -132,11 +127,10 @@
         return {data: {items: response.data.items.map(modifyImage)}};
 
         function modifyImage(image) {
-          image.trackBy = image.id + image.updated_at + image.status;
+          image.trackBy = image.id + image.updated_at;
           image.apiVersion = version;
           image.visibility = $filter('imageVisibility')(image, projectId);
           image.name = image.name || image.id;
-          image.type = imageType(image);
           return image;
         }
       }

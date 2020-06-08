@@ -25,7 +25,6 @@
     'horizon.app.core.trunks.resourceType',
     'horizon.framework.conf.resource-type-registry.service',
     'horizon.app.core.openstack-service-api.userSession',
-    'horizon.app.core.trunks.service',
     '$scope'
   ];
 
@@ -33,7 +32,6 @@
     trunkResourceTypeCode,
     registry,
     userSession,
-    trunksService,
     $scope
   ) {
     var ctrl = this;
@@ -54,8 +52,7 @@
          priority: 1, sortDefault: true},
         {id: 'segmentation_id', title: gettext('Segmentation ID'),
          priority: 1, sortDefault: true},
-        {id: 'port_id', title: gettext('Port ID'), priority: 1,
-         urlFunction: trunksService.getPortDetailsPath}
+        {id: 'port_id', title: gettext('Port ID'), priority: 1}
       ]
     };
 

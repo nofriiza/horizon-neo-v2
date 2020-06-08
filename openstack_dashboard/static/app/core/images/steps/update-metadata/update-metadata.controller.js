@@ -92,7 +92,7 @@
 
     function onMetadataChanged(newValue, oldValue) {
       if (newValue !== oldValue) {
-        $scope.stepModels.updateMetadataForm = newValue;
+        $scope.$emit(events.IMAGE_METADATA_CHANGED, newValue);
       }
     }
 

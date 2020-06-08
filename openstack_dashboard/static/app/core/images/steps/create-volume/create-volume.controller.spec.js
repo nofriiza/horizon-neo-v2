@@ -34,13 +34,6 @@
           }
         };
       },
-      getAvailabilityZones: function() {
-        return {
-          success: function(callback) {
-            return callback({ items: [{zoneName: 'zone1'}] });
-          }
-        };
-      },
       getAbsoluteLimits: angular.noop
     };
 
@@ -50,6 +43,15 @@
 
     beforeEach(inject(function ($injector, _$rootScope_, _$filter_) {
 
+      nova = {
+        getAvailabilityZones: function() {
+          return {
+            success: function(callback) {
+              return callback({ items: [{zoneName: 'zone1'}] });
+            }
+          };
+        }
+      };
       $scope = _$rootScope_.$new();
       $scope.image = {
         name: 'ImageName',
@@ -272,12 +274,16 @@
       expect(graph.maxLimit).toEqual(graph.maxLimit);
     });
 
-    it('should update volume type when ctrl.volumeType changes', function() {
+    it('should update volume type from volume name', function() {
       var ctrl = createController();
-      ctrl.volumeType = {name: 'spam'};
+
       $scope.$apply();
 
-      expect(ctrl.volume.volume_type).toEqual('spam');
+      ctrl.volume.volume_type = 'spam';
+      ctrl.volume.name = 'nova2';
+      $scope.$apply();
+
+      expect(ctrl.volume.volume_type).toEqual('lvmdriver-1');
     });
 
     it('should set the validity of the volume size input field based on the limit', function() {
@@ -338,13 +344,13 @@
       expect(graph.overMax).toBeFalsy();
     });
 
-    it('should deregister the volume type watcher when the destroy event is thrown', function() {
+    it('should deregister the volume watcher when the destroy event is thrown', function() {
       var ctrl = createController();
 
       $scope.$emit('$destroy');
       $scope.$emit.calls.reset();
 
-      ctrl.volumeType = {name: 'spam'};
+      ctrl.volume.size = 100;
       $scope.$apply();
 
       expect($scope.$emit).not.toHaveBeenCalled();
@@ -352,7 +358,7 @@
 
     it('not default the availability_zone if none present', function() {
 
-      cinder.getAvailabilityZones = function() {
+      nova.getAvailabilityZones = function() {
         return {
           success: function(callback) {
             return callback({ items: [] });

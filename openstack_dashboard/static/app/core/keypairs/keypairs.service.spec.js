@@ -21,11 +21,10 @@
   });
 
   describe('keypairsService', function() {
-    var service, detailRoute;
+    var service;
     beforeEach(module('horizon.app.core'));
     beforeEach(inject(function($injector) {
       service = $injector.get('horizon.app.core.keypairs.service');
-      detailRoute = $injector.get('horizon.app.core.detailRoute');
     }));
 
     describe('getKeypairsPromise', function() {
@@ -40,33 +39,16 @@
         deferredSession.resolve({});
         deferred.resolve({
           data: {
-            items: [{keypair: {name: 'keypair1', fingerprint: 'fp'}}]
+            items: [{keypair: {name: 'keypair1'}}]
           }
         });
         $timeout.flush();
         expect(nova.getKeypairs).toHaveBeenCalled();
         expect(result.$$state.value.data.items[0].name).toBe('keypair1');
-        expect(result.$$state.value.data.items[0].trackBy).toBe('keypair1fp');
+        expect(result.$$state.value.data.items[0].trackBy).toBe('keypair1');
       }));
     });
 
-    describe('getKeypairPromise', function() {
-      it("provides a promise", inject(function($q, $injector) {
-        var nova = $injector.get('horizon.app.core.openstack-service-api.nova');
-        var deferred = $q.defer();
-        spyOn(nova, 'getKeypair').and.returnValue(deferred.promise);
-        var result = service.getKeypairPromise('keypair1');
-        deferred.resolve({data: {keypair: {name: 'keypair1'}}});
-        expect(nova.getKeypair).toHaveBeenCalled();
-        expect(result.$$state.value.data.keypair.name).toBe('keypair1');
-      }));
-    });
-
-    describe('urlFunction', function() {
-      it("get url", inject(function() {
-        var result = service.urlFunction({name: "123abc"});
-        expect(result).toBe(detailRoute + "OS::Nova::Keypair/123abc");
-      }));
-    });
   });
+
 })();

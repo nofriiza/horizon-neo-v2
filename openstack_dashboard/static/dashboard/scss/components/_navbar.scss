@@ -5,7 +5,7 @@
 
   img {
     display: inline-block;
-    height: $navbar-height - $padding-small-vertical*2;
+    max-height: $navbar-height - $padding-small-vertical*2;
     vertical-align: middle;
   }
 }
@@ -21,11 +21,6 @@
 .topbar {
   .navbar {
     margin-bottom: 1px;
-  }
-
-  .navbar-nav .header-overflow ul li{
-    white-space: nowrap;
-    padding: $bs-dropdown-item-padding-vertical $bs-dropdown-item-padding-horizontal;
   }
 
   .dropdown-toggle > .fa {

@@ -19,15 +19,7 @@
 
   describe('horizon.app.core.images edit image controller', function() {
 
-    function policyIfAllowed() {
-      return {
-        then: function(callback) {
-          callback({allowed: true});
-        }
-      };
-    }
-
-    var controller, $scope, $q, settingsCall, $timeout, policy;
+    var controller, $scope, $q, settingsCall, $timeout;
 
     ///////////////////////
 
@@ -38,14 +30,10 @@
 
     beforeEach(inject(function ($injector, _$rootScope_, _$q_, _$timeout_) {
       $scope = _$rootScope_.$new();
-      $scope.stepModels = {imageForm: {}, updateMetadataForm: {}};
       $q = _$q_;
       $timeout = _$timeout_;
 
       controller = $injector.get('$controller');
-
-      policy = $injector.get('horizon.app.core.openstack-service-api.policy');
-      spyOn(policy, 'ifAllowed').and.callFake(policyIfAllowed);
     }));
 
     function createController() {
@@ -68,12 +56,19 @@
     }
 
     it('should have options for visibility and protected', function() {
-      setImagePromise({id: '1', container_format: 'bare', visibility: 'shared', properties: []});
+      setImagePromise({id: '1', container_format: 'bare', is_public: false, properties: []});
+      var ctrl = createController();
+
+      expect(ctrl.imageVisibilityOptions.length).toEqual(2);
+      expect(ctrl.imageProtectedOptions.length).toEqual(2);
+    });
+
+    it('should map is_public', function() {
+      setImagePromise({id: '1', container_format: 'bare', is_public: false, properties: []});
       var ctrl = createController();
       $timeout.flush();
 
-      expect(ctrl.imageVisibilityOptions.length).toEqual(4);
-      expect(ctrl.imageProtectedOptions.length).toEqual(2);
+      expect(ctrl.image.visibility).toEqual('private');
     });
 
     it('reads the data format settings', function() {
@@ -91,14 +86,14 @@
         id: '1',
         container_format: 'bare',
         disk_format: 'ova',
-        visibility: 'private',
+        is_public: true,
         properties: []
       });
       var ctrl = createController();
       $timeout.flush();
 
       expect(ctrl.image.disk_format).toEqual('ova');
-      expect(ctrl.image.visibility).toEqual('private');
+      expect(ctrl.image.visibility).toEqual('public');
     });
 
     it('should set local image_format to docker when container is docker', function() {
@@ -137,13 +132,21 @@
       expect(ctrl.image.container_format).toEqual('ari');
     });
 
-    it('should set container to ovf when disk format is vhd', function() {
-      setImagePromise({id: '1', disk_format: 'vhd', container_format: '',
-        is_public: false, properties: []});
-      var ctrl = createController();
-      $timeout.flush();
+    it("should destroy the image changed watcher when the controller is destroyed", function() {
+      setImagePromise({id: '1', container_format: 'bare', properties: []});
+      spyOn($scope, '$emit').and.callThrough();
 
-      expect(ctrl.image.container_format).toEqual('ovf');
+      var ctrl = createController();
+      ctrl.image = 1;
+      $scope.$apply();
+
+      $scope.$emit("$destroy");
+      $scope.$emit.calls.reset();
+
+      ctrl.image = 2;
+      $scope.$apply();
+
+      expect($scope.$emit).not.toHaveBeenCalled();
     });
 
   });

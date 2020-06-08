@@ -133,4 +133,11 @@ class IndexView(tables.DataTableView):
             ip.instance_name = instances_dict.get(ip.instance_id)
             ip.pool_name = pool_dict.get(ip.pool, ip.pool)
 
-        return floating_ips
+        fix_floating_ips = []
+        for floating_ip in floating_ips:
+            if floating_ip.description != 'PLSK':
+                fix_floating_ips.append(floating_ip)
+
+
+        # return floating_ips
+        return fix_floating_ips
