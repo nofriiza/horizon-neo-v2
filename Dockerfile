@@ -21,6 +21,11 @@ RUN cd ${HORIZON_BASEDIR} && \
     python3 -m pip install python-memcached && \
     python3 -m pip install oslo-log && \
     cp openstack_dashboard/local/local_settings.py.dev openstack_dashboard/local/local_settings.py && \
+    git clone https://github.com/openstack/heat-dashboard && \
+    pip install -e ./heat-dashboard/ && \
+    cp heat-dashboard/heat_dashboard/enabled/* ${HORIZON_BASEDIR}/openstack_dashboard/local/enabled && \
+    cp heat-dashboard/heat_dashboard/conf/* ${HORIZON_BASEDIR}/openstack_dashboard/conf/ && \
+    cp heat-dashboard/heat_dashboard/local_settings.d/* ${HORIZON_BASEDIR}/openstack_dashboard/local/local_settings.d/ && \
     python3 ./manage.py compilemessages && \
     python3 ./manage.py collectstatic --noinput && \
     python3 ./manage.py compress --force && \
