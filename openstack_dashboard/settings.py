@@ -50,6 +50,15 @@ if ROOT_PATH not in sys.path:
 
 DEBUG = False
 
+WEBROOT = '/'
+LOGIN_URL = None
+LOGOUT_URL = None
+LOGIN_REDIRECT_URL = None
+MEDIA_ROOT = None
+MEDIA_URL = None
+STATIC_ROOT = None
+STATIC_URL = None
+
 ROOT_URLCONF = 'openstack_dashboard.urls'
 
 HORIZON_CONFIG = {

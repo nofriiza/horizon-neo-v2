@@ -48,3 +48,5 @@ ghostdriver.log
 .idea
 package-lock.json
 test_reports/*
+heat-dashboard/*
+octavia-dashboard/*
