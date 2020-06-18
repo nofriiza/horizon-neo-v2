@@ -8,7 +8,7 @@
      {% if region.name != regions.current.name %}
        <li>
         <!-- <a href="#" onclick="gio_login('{{ region.endpoint|urlencode }}')"> -->
-        <a href="#" onclick="gio_login('{{ forloop.counter }}')">
+        <a href="#" onclick="gio_login('{{ forloop.counter0 }}')">
          <!-- <a class="ajax-modal" href="{% url 'login' %}?region={{ region.endpoint|urlencode }}&is_modal"> -->
            {{ region.name }}
          </a>
