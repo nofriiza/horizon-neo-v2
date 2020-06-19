@@ -26,7 +26,10 @@
   angular
     .module('horizon.app.core.network_qos', [
       'ngRoute',
-      'horizon.app.core.network_qos.details'
+      'horizon.framework.conf',
+      'horizon.app.core.network_qos.actions',
+      'horizon.app.core.network_qos.details',
+      'horizon.app.core'
     ])
     .constant('horizon.app.core.network_qos.resourceType', 'OS::Neutron::QoSPolicy')
     .run(run)
@@ -34,18 +37,22 @@
 
   run.$inject = [
     'horizon.framework.conf.resource-type-registry.service',
+    'horizon.framework.util.i18n.gettext',
     'horizon.app.core.network_qos.basePath',
     'horizon.app.core.network_qos.service',
     'horizon.app.core.network_qos.resourceType'
   ];
 
   function run(registry,
+               gettext,
                basePath,
                qosService,
                qosResourceType) {
     registry.getResourceType(qosResourceType)
-      .setNames(gettext('QoS Policy'), gettext('QoS Policies'))
+      .setNames('QoS Policy', 'QoS Policies',
+                ngettext('QoS Policy', 'QoS Policies', 1))
       .setSummaryTemplateUrl(basePath + 'details/drawer.html')
+      .setDefaultIndexUrl('/project/network_qos/')
       .setProperties(qosProperties(qosService))
       .setListFunction(qosService.getPoliciesPromise)
       .tableColumns
@@ -93,16 +100,16 @@
    */
   function qosProperties() {
     return {
-      name: gettext('Policy Name'),
-      id: gettext('Policy ID'),
-      description: gettext('Description'),
-      shared: { label: gettext('Shared'), filters: ['yesno'] },
-      tenant_id: gettext('Tenant ID'),
-      project_id: gettext('Project ID'),
-      created_at: gettext('Created At'),
-      updated_at: gettext('Updated At'),
-      rules: gettext('Rules'),
-      revision_number: gettext('Revision Number')
+      'name': {label: gettext('Policy Name'), filters: ['noName'] },
+      'id': {label: gettext('Policy ID'), filters: ['noValue'] },
+      'description': {label: gettext('Description'), filters: ['noName'] },
+      'shared': {label: gettext('Shared'), filters: ['yesno'] },
+      'tenant_id': {label: gettext('Tenant ID'), filters: ['noValue'] },
+      'project_id': {label: gettext('Project ID'), filters: ['noValue'] },
+      'created_at': {label: gettext('Created At'), filters: ['simpleDate'] },
+      'updated_at': {label: gettext('Updated At'), filters: ['simpleDate'] },
+      'rules': {label: gettext('Rules'), filters: ['noValue'] },
+      'revision_number': {label: gettext('Revision Number'), filters: ['noValue'] }
     };
   }
 
@@ -129,7 +136,7 @@
     .when('/project/network_qos', {
       templateUrl: path + 'panel.html'
     })
-    .when('/project/network_qos/:policy_id', {
+    .when('/project/network_qos/:id', {
       redirectTo: goToAngularDetails
     });
 
