@@ -42,14 +42,20 @@
       getConsoleInfo: getConsoleInfo,
       getServerVolumes: getServerVolumes,
       getServerSecurityGroups: getServerSecurityGroups,
+      isFeatureSupported: isFeatureSupported,
       getKeypairs: getKeypairs,
       createKeypair: createKeypair,
+      getKeypair: getKeypair,
+      deleteKeypair: deleteKeypair,
       getAvailabilityZones: getAvailabilityZones,
       getLimits: getLimits,
       createServer: createServer,
       getServer: getServer,
       getServers: getServers,
+      getServerGroup: getServerGroup,
       getServerGroups: getServerGroups,
+      createServerGroup: createServerGroup,
+      deleteServerGroup: deleteServerGroup,
       deleteServer: deleteServer,
       pauseServer: pauseServer,
       unpauseServer: unpauseServer,
@@ -82,6 +88,21 @@
     return service;
 
     ///////////
+
+    // Feature
+
+    /**
+     * @name isFeatureSupported
+     * @description
+     * Check if the feature is supported.
+     * @returns {Object} The result of the API call
+     */
+    function isFeatureSupported(feature) {
+      return apiService.get('/api/nova/features/' + feature)
+        .error(function () {
+          toastService.add('error', gettext('Unable to check the Nova service feature.'));
+        });
+    }
 
     // Nova Services
 
@@ -139,6 +160,45 @@
             toastService.add('error', gettext('Unable to create the keypair.'));
           }
         });
+    }
+
+    /**
+     * @name getKeypair
+     * @description
+     * Get a single keypair by name.
+     *
+     * @param {string} name
+     * The name of the keypair. Required.
+     *
+     * @returns {Object} The result of the API call.
+     */
+    function getKeypair(name) {
+      return apiService.get('/api/nova/keypairs/' + name)
+        .error(function () {
+          toastService.add('error', gettext('Unable to retrieve the keypair.'));
+        });
+    }
+
+    /**
+     * @name deleteKeypair
+     * @description
+     * Delete a single keypair by name.
+     *
+     * @param {String} name
+     * Keypair to delete
+     *
+     * @param {boolean} suppressError
+     * If passed in, this will not show the default error handling
+     * (horizon alert).
+     *
+     * @returns {Object} The result of the API call
+     */
+    function deleteKeypair(name, suppressError) {
+      var promise = apiService.delete('/api/nova/keypairs/' + name);
+      return suppressError ? promise : promise.error(function() {
+        var msg = gettext('Unable to delete the keypair with name: %(name)s');
+        toastService.add('error', interpolate(msg, { name: name }, true));
+      });
     }
 
     // Availability Zones
@@ -260,6 +320,21 @@
     }
 
     /**
+     * @name getServerGroup
+     * @description
+     * Get a single server group by ID
+     * @param {string} id
+     * Specifies the id of the server group to request.
+     * @returns {Object} The result of the API call
+     */
+    function getServerGroup(id) {
+      return apiService.get('/api/nova/servergroups/' + id)
+        .error(function () {
+          toastService.add('error', gettext('Unable to retrieve the server group.'));
+        });
+    }
+
+    /**
      * @name getServerGroups
      * @description
      * Get a list of server groups.
@@ -273,6 +348,50 @@
         .error(function () {
           toastService.add('error', gettext('Unable to retrieve server groups.'));
         });
+    }
+
+    /**
+     * @name createServerGroup
+     * @description
+     * Create a new server group. This returns the new server group object on success.
+     *
+     * @param {Object} newServerGroup
+     * The server group to create.
+     *
+     * @param {string} newServerGroup.name
+     * The name of the new server group. Required.
+     *
+     * @param {array} newServerGroup.policies
+     * The policies of the new server group. Required.
+     * @returns {Object} The result of the API call
+     */
+    function createServerGroup(newServerGroup) {
+      return apiService.post('/api/nova/servergroups/', newServerGroup)
+        .error(function () {
+          toastService.add('error', gettext('Unable to create the server group.'));
+        });
+    }
+
+    /**
+     * @name deleteServerGroup
+     * @description
+     * Delete a single server group by ID.
+     *
+     * @param {String} serverGroupId
+     * Server Group to delete
+     *
+     * @param {boolean} suppressError
+     * If passed in, this will not show the default error handling
+     * (horizon alert).
+     *
+     * @returns {Object} The result of the API call
+     */
+    function deleteServerGroup(serverGroupId, suppressError) {
+      var promise = apiService.delete('/api/nova/servergroups/' + serverGroupId + '/');
+      return suppressError ? promise : promise.error(function() {
+        var msg = gettext('Unable to delete the server group with id %(id)s');
+        toastService.add('error', interpolate(msg, { id: serverGroupId }, true));
+      });
     }
 
     /*
@@ -429,12 +548,7 @@
      *  {
      *    "items": [
      *      {
-     *        "alias": "NMN",
-     *        "description": "Multiple network support.",
-     *        "links": [],
-     *        "name": "Multinic",
-     *        "namespace": "http://docs.openstack.org/compute/ext/multinic/api/v1.1",
-     *        "updated": "2011-06-09T00:00:00Z"
+     *        "name": "Multinic"
      *      }
      *    ]
      *  }

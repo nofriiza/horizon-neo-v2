@@ -22,11 +22,12 @@
 
   keystoneAPI.$inject = [
     '$q',
+    'horizon.app.core.openstack-service-api.settings',
     'horizon.framework.util.http.service',
     'horizon.framework.widgets.toast.service'
   ];
 
-  function keystoneAPI($q, apiService, toastService) {
+  function keystoneAPI($q, settingAPI, apiService, toastService) {
     var service = {
       getVersion: getVersion,
       getUsers: getUsers,
@@ -42,6 +43,7 @@
       getRole: getRole,
       editRole: editRole,
       deleteRole: deleteRole,
+      getDefaultDomain: getDefaultDomain,
       getDomains: getDomains,
       createDomain: createDomain,
       deleteDomains: deleteDomains,
@@ -58,7 +60,13 @@
       grantRole: grantRole,
       serviceCatalog: serviceCatalog,
       getServices: getServices,
-      getGroups: getGroups
+      getGroups: getGroups,
+      createGroup: createGroup,
+      getGroup: getGroup,
+      editGroup: editGroup,
+      deleteGroup: deleteGroup,
+      deleteGroups: deleteGroups,
+      canEditIdentity: canEditIdentity
     };
 
     return service;
@@ -103,10 +111,47 @@
         });
     }
 
+    // Group
     function getGroups() {
       return apiService.get('/api/keystone/groups/')
         .error(function () {
           toastService.add('error', gettext('Unable to fetch the groups.'));
+        });
+    }
+
+    function createGroup(newGroup) {
+      return apiService.post('/api/keystone/groups/', newGroup)
+        .error(function () {
+          toastService.add('error', gettext('Unable to create the group.'));
+        });
+    }
+
+    function getGroup(groupId) {
+      return apiService.get('/api/keystone/groups/' + groupId)
+        .error(function () {
+          toastService.add('error', gettext('Unable to retrieve the group.'));
+        });
+    }
+
+    function editGroup(updatedGroup) {
+      var url = '/api/keystone/groups/' + updatedGroup.id;
+      return apiService.patch(url, updatedGroup)
+        .error(function () {
+          toastService.add('error', gettext('Unable to edit the group.'));
+        });
+    }
+
+    function deleteGroup(groupId) {
+      return apiService.delete('/api/keystone/groups/' + groupId)
+        .error(function () {
+          toastService.add('error', gettext('Unable to delete the group.'));
+        });
+    }
+
+    function deleteGroups(groupIds) {
+      return apiService.delete('/api/keystone/groups/', groupIds)
+        .error(function () {
+          toastService.add('error', gettext('Unable to delete the groups.'));
         });
     }
 
@@ -214,6 +259,13 @@
     }
 
     // Domains
+    function getDefaultDomain() {
+      return apiService.get('/api/keystone/default_domain/')
+        .error(function () {
+          toastService.add('error', gettext('Unable to retrieve the default domain.'));
+        });
+    }
+
     function getDomains() {
       return apiService.get('/api/keystone/domains/')
         .error(function () {
@@ -336,6 +388,26 @@
     }
 
     /**
+     * @name canEditIdentity
+     * @description
+     * Returns the promise for can_edit_* setting in OPENSTACK_KEYSTONE_BACKEND.
+     * @returns {object} Deferred promiss
+     */
+    function canEditIdentity(type) {
+      var deferred = $q.defer();
+      settingAPI.getSetting('OPENSTACK_KEYSTONE_BACKEND', false).then(success);
+      return deferred.promise;
+
+      function success(response) {
+        if (response["can_edit_" + type]) {
+          deferred.resolve();
+        } else {
+          deferred.reject();
+        }
+      }
+    }
+
+    /**
      * @name serviceCatalog
      * @description
      * Returns the service catalog.
@@ -349,6 +421,7 @@
           toastService.add('error', gettext('Unable to fetch the service catalog.'));
         });
     }
+
   }
 
 }());
