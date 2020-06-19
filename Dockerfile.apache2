@@ -45,6 +45,7 @@ RUN cd ${HORIZON_BASEDIR} && \
 EXPOSE 80
 RUN a2ensite horizon && \
     rm -rf /etc/apache2/sites-available/000-default.conf && \ 
-    chown -R www-data:www-data /opt/horizon/openstack_dashboard/local
+    chown -R www-data:www-data /opt/horizon/openstack_dashboard/local && \
+    chown -R www-data:www-data /var/tmp
 
 CMD ["/bin/bash", "entrypoint.sh"]
