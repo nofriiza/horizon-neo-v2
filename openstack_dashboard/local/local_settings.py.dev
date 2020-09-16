@@ -8,7 +8,7 @@ from horizon.utils import secret_key
 
 from openstack_dashboard.settings import HORIZON_CONFIG
 
-DEBUG = False
+DEBUG = True
 
 # This setting controls whether or not compression is enabled. Disabling
 # compression makes Horizon considerably slower, but makes it much easier
@@ -24,6 +24,8 @@ COMPRESS_OFFLINE = True
 # WEBROOT is the location relative to Webserver root
 # should end with a slash.
 WEBROOT = '/'
+# STATIC_URL = 'http://horizon.neo.id/'
+STATIC_ROOT = '/opt/horizon/horizon-neo-v2/openstack_dashboard/static/'
 #LOGIN_URL = WEBROOT + 'auth/login/'
 #LOGOUT_URL = WEBROOT + 'auth/logout/'
 #
@@ -164,17 +166,10 @@ SECRET_KEY = secret_key.generate_or_read_from_file(
 #    },
 #}
 
-#CACHES = {
-#    'default': {
-#        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-#    },
-#}
-
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': '/var/tmp/django_cache',
-    }
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    },
 }
 
 # Send email to the console by default
@@ -345,6 +340,7 @@ OPENSTACK_NEUTRON_NETWORK = {
     'enable_distributed_router': False,
     'enable_ha_router': False,
     'enable_fip_topology_check': True,
+    'enable_lb': True,
 
     # Default dns servers you would like to use when a subnet is
     # created.  This is only a default, users can still choose a different
