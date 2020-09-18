@@ -27,7 +27,6 @@ def get_available_images(request, project_id=None, images_cache=None):
     :param images_cache: An optional dict-like object in which to
     cache public and per-project id image metadata.
     """
-    print("test sampe sini")
     if images_cache is None:
         images_cache = {}
     public_images = images_cache.get('public_images', [])
@@ -46,7 +45,6 @@ def get_available_images(request, project_id=None, images_cache=None):
             exceptions.handle(request,
                               _("Unable to retrieve public images."))
 
-    print("test sampe sini")
     # Preempt if we don't have a project_id yet.
     if project_id is None:
         images_by_project[project_id] = []
@@ -66,7 +64,6 @@ def get_available_images(request, project_id=None, images_cache=None):
     else:
         owned_images = images_by_project[project_id]
 
-    print("test sampe sini")
     if 'community_images' not in images_cache:
         community = {"visibility": "community",
                      "status": "active"}
@@ -79,7 +76,6 @@ def get_available_images(request, project_id=None, images_cache=None):
             exceptions.handle(request,
                               _("Unable to retrieve community images."))
 
-    print("test sampe sini")
     if 'shared_images' not in images_cache:
         shared = {"visibility": "shared",
                   "status": "active"}
@@ -91,14 +87,11 @@ def get_available_images(request, project_id=None, images_cache=None):
             exceptions.handle(request,
                               _("Unable to retrieve shared images."))
 
-    print("test sampe sini")
     if 'images_by_project' not in images_cache:
         images_cache['images_by_project'] = images_by_project
 
-    print("test sampe sini")
     images = owned_images + public_images + community_images + shared_images
 
-    print("test sampe sini")
     image_ids = []
     final_images = []
     for image in images:

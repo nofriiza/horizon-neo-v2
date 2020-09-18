@@ -45,7 +45,6 @@ class IndexView(tables.DataTableView):
         return getattr(self, "_more", False)
 
     def get_data(self):
-        messages.info("test sampe sini")
         if not policy.check((("image", "get_images"),), self.request):
             msg = _("Insufficient privilege level to retrieve image list.")
             messages.info(self.request, msg)
@@ -53,14 +52,12 @@ class IndexView(tables.DataTableView):
         prev_marker = self.request.GET.get(
             images_tables.ImagesTable._meta.prev_pagination_param, None)
 
-        messages.info("test sampe sini")
         if prev_marker is not None:
             marker = prev_marker
         else:
             marker = self.request.GET.get(
                 images_tables.ImagesTable._meta.pagination_param, None)
         reversed_order = prev_marker is not None
-        messages.info("test sampe sini")
         try:
             images, self._more, self._prev = api.glance.image_list_detailed(
                 self.request,
