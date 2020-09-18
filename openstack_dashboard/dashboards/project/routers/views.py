@@ -60,9 +60,13 @@ class IndexView(tables.DataTableView):
 
         ext_net_dict = self._list_external_networks()
 
-        for r in routers:
-            r.name = r.name_or_id
-            self._set_external_network(r, ext_net_dict)
+        for idx,val in enumerate(routers):
+            print(val.name)
+            if 'PLSK' in val.name:
+                routers.pop(idx)
+                continue
+            val.name = val.name_or_id
+            self._set_external_network(val, ext_net_dict)
         return routers
 
     def get_data(self):
