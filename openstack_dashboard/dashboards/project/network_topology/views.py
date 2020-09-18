@@ -286,6 +286,8 @@ class JSONView(View):
                 target={'network:tenant_id': getattr(network,
                                                      'tenant_id', None)}
             )
+            if 'PLSK' in network.name:
+                continue
             obj = {'name': network.name_or_id,
                    'id': network.id,
                    'subnets': [{'id': subnet.id,
@@ -343,7 +345,9 @@ class JSONView(View):
                 tenant_id=request.user.tenant_id)
         except Exception:
             neutron_routers = []
-
+        for idx,val in enumerate(neutron_routers):
+            if 'PLSK' in val.name:
+                neutron_routers.pop(idx)
         routers = [{'id': router.id,
                     'name': router.name_or_id,
                     'status': self.trans.router[router.status],
