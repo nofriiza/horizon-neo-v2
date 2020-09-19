@@ -20,7 +20,7 @@ DEBUG = True
 # See https://django-compressor.readthedocs.io/en/latest/usage/#offline-compression
 # for more information
 COMPRESS_OFFLINE = True
-
+DEFAULT_BOOT_SOURCE = 'image'
 # WEBROOT is the location relative to Webserver root
 # should end with a slash.
 WEBROOT = '/'
