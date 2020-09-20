@@ -60,11 +60,13 @@ class IndexView(tables.DataTableView):
             networks = []
             msg = _('Network list can not be retrieved.')
             exceptions.handle(self.request, msg)
-        for idx, val in enumerate(networks):
-            print(val.name)
-            if 'PLSK' in val.name:
-                networks.pop(idx)
-        return networks
+        new_network = []
+        for x in networks:
+            print(x.name)
+            if 'plsk' in x.name.lower() or 'plesk' in x.name.lower():
+                continue
+            new_network.append(x)
+        return new_network
 
 
 class DefaultSubnetWorkflowMixin(object):

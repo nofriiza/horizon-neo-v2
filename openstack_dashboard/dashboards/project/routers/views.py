@@ -59,15 +59,18 @@ class IndexView(tables.DataTableView):
                               _('Unable to retrieve router list.'))
 
         ext_net_dict = self._list_external_networks()
-
-        for idx,val in enumerate(routers):
-            print(val.name)
-            if 'PLSK' in val.name:
-                routers.pop(idx)
+        new_routers = []
+        print(routers)
+        for r in routers:
+            if 'plsk' in r.name.lower() or 'plesk' in r.name.lower():
+                print("di skip")
+                print(r.name)
                 continue
-            val.name = val.name_or_id
-            self._set_external_network(val, ext_net_dict)
-        return routers
+            r.name = r.name_or_id
+            self._set_external_network(r, ext_net_dict)
+            new_routers.append(r)
+        print(new_routers)
+        return new_routers
 
     def get_data(self):
         routers = self._get_routers()
