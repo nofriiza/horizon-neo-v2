@@ -22,7 +22,7 @@ RUN cd ${HORIZON_BASEDIR} && \
     python3 -m pip install oslo-log && \
     python3 -m pip install uwsgi && \
     cp openstack_dashboard/local/local_settings.py.dev openstack_dashboard/local/local_settings.py && \
-    git clone -b ${VERSION} https://github.com/openstack/heat-dashboard && \
+    git clone -b ${VERSION} https://github.com/nofriiza/heat-dashboard.git && \
     python3 -m pip install -e ./heat-dashboard/ && \
     cp heat-dashboard/heat_dashboard/enabled/* ${HORIZON_BASEDIR}/openstack_dashboard/local/enabled && \
     cp heat-dashboard/heat_dashboard/conf/* ${HORIZON_BASEDIR}/openstack_dashboard/conf/ && \

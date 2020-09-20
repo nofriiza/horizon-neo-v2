@@ -22,16 +22,16 @@ RUN cd ${HORIZON_BASEDIR} && \
     python3 -m pip install oslo-log && \
     python3 -m pip install uwsgi && \
     cp openstack_dashboard/local/local_settings.py.dev openstack_dashboard/local/local_settings.py && \
-    git clone -b ${VERSION} https://github.com/openstack/heat-dashboard && \
+    git clone -b ${VERSION} https://github.com/nofriiza/heat-dashboard.git && \
     python3 -m pip install -e ./heat-dashboard/ && \
     cp heat-dashboard/heat_dashboard/enabled/* ${HORIZON_BASEDIR}/openstack_dashboard/local/enabled && \
     cp heat-dashboard/heat_dashboard/conf/* ${HORIZON_BASEDIR}/openstack_dashboard/conf/ && \
     cp heat-dashboard/heat_dashboard/local_settings.d/* ${HORIZON_BASEDIR}/openstack_dashboard/local/local_settings.d/ && \
-    git clone -b ${VERSION} https://github.com/openstack/octavia-dashboard && \
-    cd octavia-dashboard && \
+    git clone -b stable/stein https://github.com/openstack/neutron-lbaas-dashboard.git && \
+    cd neutron-lbaas-dashboard && \
     python3 setup.py sdist && \
     python3 setup.py install && \
-    cp octavia_dashboard/enabled/_1482_*.py ${HORIZON_BASEDIR}/openstack_dashboard/local/enabled/ && \
+    cp neutron_lbaas_dashboard/enabled/* ${HORIZON_BASEDIR}/openstack_dashboard/local/enabled/ && \
     python3 ./manage.py collectstatic --noinput && \
     python3 ./manage.py compress --force && \
     cd ${HORIZON_BASEDIR} && \
@@ -39,8 +39,7 @@ RUN cd ${HORIZON_BASEDIR} && \
     python3 ./manage.py collectstatic --noinput && \
     python3 ./manage.py compress --force && \
     python3 ./manage.py make_web_conf --wsgi --force && \
-    python3 ./manage.py make_web_conf --apache --force > /etc/apache2/sites-available/horizon.conf && \
     python3 -m compileall $HORIZON_BASEDIR
 
-EXPOSE 8000
-CMD ["uwsgi", "--http","0.0.0.0:8000","--wsgi-file","openstack_dashboard/horizon_wsgi.py"]
+EXPOSE 8001
+CMD ["uwsgi", "--http","0.0.0.0:8001","--wsgi-file","openstack_dashboard/horizon_wsgi.py"]
