@@ -936,3 +936,4 @@ ALLOWED_PRIVATE_SUBNET_CIDR = {'ipv4': [], 'ipv6': []}
 # Once the password expires keystone will deny the access and users must
 # contact an admin to change their password.
 #PASSWORD_EXPIRES_WARNING_THRESHOLD_DAYS = 0
+CONSOLE_TYPE = None
