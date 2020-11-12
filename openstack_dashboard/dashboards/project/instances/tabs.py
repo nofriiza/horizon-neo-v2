@@ -147,5 +147,5 @@ class AuditTab(tabs.TableTab):
 
 class InstanceDetailTabs(tabs.DetailTabsGroup):
     slug = "instance_details"
-    tabs = (OverviewTab, InterfacesTab, LogTab, AuditTab)
+    tabs = (OverviewTab, InterfacesTab, ConsoleTab, LogTab, AuditTab)
     sticky = True
