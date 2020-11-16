@@ -19,6 +19,15 @@
     } else {
         addHorizonLoadEvent(fix_height);
     }
+    
+    if(window.location.href.includes("instance_details__console")){
+        window.open('{{ console_url }}','_blank');
+        window.history.back();
+    }
+
+    $(document).ready(function(){
+        window.open('{{ console_url }}','_blank');
+    });
 </script>
 {% else %}
   <script type="text/javascript">
