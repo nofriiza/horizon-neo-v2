@@ -187,6 +187,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 AVAILABLE_REGIONS = [
     ('https://keystone.wjv-1.neo.id:443/v3', 'west-java-1'),
     ('https://keystone.jkt-1.neo.id:443/v3', 'jakarta-1'),
+    ('https://keystone.wjv-2.neo.id:13000/v3', 'west-java-2'),
+    ('https://keystone.jkt-2.neo.id:13000/v3', 'jakarta-2')
 ]
 
 OPENSTACK_HOST = "keystone.wjv-1.neo.id:443"
