@@ -91,10 +91,12 @@ function gio_login(region){
       data: payload,
       dataType: "json"
   }).done(function(response) {
-    // console.log("done");
-    // console.log(response);
+    console.log("done");
+    console.log(response);
     setTimeout(function(){ location.reload(); }, 3000);
   }).fail(function (error) {
+      console.log("fail change region");
+      console.log(error);
       $(".modal.loading").remove();
       $(".modal-backdrop").remove();
       var region_index = parse_region_index(last_region_name.split(" : ")[1]);
