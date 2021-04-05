@@ -95,20 +95,22 @@ function gio_login(region){
     console.log(response);
     setTimeout(function(){ location.reload(); }, 1000);
   }).fail(function (xhr, text, error) {
-      console.log("fail change region");
-      console.log(xhr.responseText);
-      console.log(text);
-      console.log(error);
       $(".modal.loading").remove();
       $(".modal-backdrop").remove();
-      var region_index = parse_region_index(last_region_name.split(" : ")[1]);
-      if(region_index > 1){
-          alert_msg = "It looks like you don't have project in jakarta-1/west-java-1, please select jakarta-2 or west-java-2."
+      if(xhr.responseText == ""){
+        setTimeout(function(){ location.reload(); }, 1000);
       } else {
-          alert_msg = "It looks like you don't have project in jakarta-2/west-java-2. Please contact support@biznetgio.com for further information.";
+        console.log("fail change region");
+        var region_index = parse_region_index(last_region_name.split(" : ")[1]);
+        if(region_index > 1){
+            alert_msg = "It looks like you don't have project in jakarta-1/west-java-1, please select jakarta-2 or west-java-2."
+        } else {
+            alert_msg = "It looks like you don't have project in jakarta-2/west-java-2. Please contact support@biznetgio.com for further information.";
+        }
+        alert(alert_msg);
+        gio_login(region_index);
       }
-      alert(alert_msg);
-      gio_login(region_index);
+     
   });
 }
 </script>
