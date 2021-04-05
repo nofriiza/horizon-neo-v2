@@ -93,9 +93,11 @@ function gio_login(region){
   }).done(function(response) {
     console.log("done");
     console.log(response);
-    setTimeout(function(){ location.reload(); }, 3000);
-  }).fail(function (error) {
+    setTimeout(function(){ location.reload(); }, 1000);
+  }).fail(function (xhr, text, error) {
       console.log("fail change region");
+      console.log(xhr.responseText);
+      console.log(text);
       console.log(error);
       $(".modal.loading").remove();
       $(".modal-backdrop").remove();
