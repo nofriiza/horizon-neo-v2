@@ -27,14 +27,6 @@ RUN cd ${HORIZON_BASEDIR} && \
     cp heat-dashboard/heat_dashboard/enabled/* ${HORIZON_BASEDIR}/openstack_dashboard/local/enabled && \
     cp heat-dashboard/heat_dashboard/conf/* ${HORIZON_BASEDIR}/openstack_dashboard/conf/ && \
     cp heat-dashboard/heat_dashboard/local_settings.d/* ${HORIZON_BASEDIR}/openstack_dashboard/local/local_settings.d/ && \
-    git clone -b stable/stein https://github.com/openstack/neutron-lbaas-dashboard.git && \
-    cd neutron-lbaas-dashboard && \
-    python3 setup.py sdist && \
-    python3 setup.py install && \
-    cp neutron_lbaas_dashboard/enabled/* ${HORIZON_BASEDIR}/openstack_dashboard/local/enabled/ && \
-    python3 ./manage.py collectstatic --noinput && \
-    python3 ./manage.py compress --force && \
-    cd ${HORIZON_BASEDIR} && \
     python3 ./manage.py compilemessages && \
     python3 ./manage.py collectstatic --noinput && \
     python3 ./manage.py compress --force && \
